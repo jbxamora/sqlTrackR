@@ -95,6 +95,7 @@ const init = () => {
         });
 };
 
+// Action function to view all employees
 const viewAllEmployees = () => {
     db.findAllEmployees()
         .then(([rows]) => {
@@ -104,6 +105,38 @@ const viewAllEmployees = () => {
         })
         .then(() => init());
 };
+// Add Employee
+const addEmployee = () => {
+    inquirer
+        .prompt([
+            {
+                name: 'first_name',
+                type: 'input',
+                message: "What is the employee's first name?",
+            },
+            {
+                name: 'last_name',
+                type: 'input',
+                message: "What is the employee's last name?",
+            },
+            {
+                name: 'role_id',
+                type: 'number',
+                message: "What is the employee's role ID?",
+            },
+            {
+                name: 'manager_id',
+                type: 'number',
+                message: "What is the employee's manager's ID?",
+            },
+        ])
+        .then((answer) => {
+            db.createEmployee(answer)
+                .then(() => console.log('Employee added successfully!\n'))
+                .then(() => init());
+        });
+};
+
 
 
 
