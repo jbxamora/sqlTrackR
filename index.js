@@ -299,6 +299,111 @@ const removeEmployee = async () => {
     start();
 };
 
+// View all roles
+const viewAllRoles = () => {
+    db.viewAllRoles()
+        .then((roles) => {
+            console.table(roles);
+            init();
+        })
+        .catch((err) => {
+            console.log(err);
+            init();
+        });
+};
+
+// Add a role
+const addRole = () => {
+    inquirer
+        .prompt([
+            {
+                name: "title",
+                type: "input",
+                message: "What is the title of the role?",
+                validate: (title) => {
+                    if (title) {
+                        return true;
+                    } else {
+                        console.log("Please enter the title of the role.");
+                        return false;
+                    }
+                },
+            },
+            {
+                name: "salary",
+                type: "input",
+                message: "What is the salary for this role?",
+                validate: (salary) => {
+                    if (isNaN(salary) || salary <= 0) {
+                        console.log("Please enter a valid salary greater than 0.");
+                        return false;
+                    } else {
+                        return true;
+                    }
+                },
+            },
+            {
+                name: "departmentId",
+                type: "list",
+                message: "What department does this role belong to?",
+                choices: selectDepartment(),
+            },
+        ])
+        .then((answer) => {
+            db.createRole(answer)
+                .then(() => {
+                    console.log("New role has been added.");
+                    init();
+                })
+                .catch((err) => {
+                    console.log(err);
+                    init();
+                });
+        });
+};
+
+// Remove a role
+const removeRole = () => {
+    inquirer
+        .prompt([
+            {
+                name: "roleName",
+                type: "list",
+                message: "Which role would you like to remove?",
+                choices: selectRole(),
+            },
+        ])
+        .then((answer) => {
+            db.removeRole(answer.roleName.split(". ")[1])
+                .then(() => {
+                    console.log("The role has been removed.");
+                    init();
+                })
+                .catch((err) => {
+                    console.log(err);
+                    init();
+                });
+        });
+};
+
+
+// Select all departments
+const selectDepartment = async () => {
+    const departments = await db.findAllDepartments();
+    return departments.map((department) => ({
+        name: department.name,
+        value: department.id,
+    }));
+};
+
+// Select all roles
+const selectRole = async () => {
+    const roles = await db.findAllRoles();
+    return roles.map((role) => ({
+        name: role.title,
+        value: role.id,
+    }));
+};
 
 
 
