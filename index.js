@@ -106,6 +106,61 @@ const viewAllEmployees = () => {
         .then(() => init());
 };
 
+// Query to return all employees by manager
+const viewAllEmployeesByManager = () => {
+    db.findAllEmployees().then((employees) => {
+        const managers = employees
+            .map((employee) => ({
+                name: `${employee.manager_first_name} ${employee.manager_last_name}`,
+                value: employee.manager_id,
+            }))
+            .filter(
+                (employee, index, self) =>
+                    self.findIndex((e) => e.value === employee.value) === index
+            );
+
+        inquirer
+            .prompt({
+                name: "manager",
+                type: "list",
+                message: "Which manager's team would you like to see?",
+                choices: managers,
+            })
+            .then((answer) => {
+                const managerEmployees = employees.filter(
+                    (employee) => employee.manager_id === answer.manager
+                );
+                console.table(managerEmployees);
+                init();
+            });
+    });
+};
+
+// Query to return all employees by department
+const viewAllEmployeesByDepartment = () => {
+    db.findAllDepartments().then((departments) => {
+        const departmentChoices = departments.map((department) => ({
+            name: department.name,
+            value: department.id,
+        }));
+
+        inquirer
+            .prompt({
+                name: "department",
+                type: "list",
+                message: "Which department's employees would you like to see?",
+                choices: departmentChoices,
+            })
+            .then((answer) => {
+                db.findAllEmployeesByDepartment(answer.department).then((employees) => {
+                    console.table(employees);
+                    init();
+                });
+            });
+    });
+};
+
+
 // Add Employee
 const addEmployee = () => {
     inquirer
