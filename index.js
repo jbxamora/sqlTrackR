@@ -229,6 +229,36 @@ const updateEmployeeRole = () => {
     });
 };
 
+const updateEmployeeManager = () => {
+    // get all employees to select from
+    db.findAllEmployees().then((employees) => {
+        const employeeChoices = employees.map((employee) => ({
+            name: `${employee.first_name} ${employee.last_name}`,
+            value: employee.id,
+        }));
+
+        inquirer
+            .prompt([
+                {
+                    name: 'employeeId',
+                    type: 'list',
+                    message: 'Which employee do you want to update?',
+                    choices: employeeChoices,
+                },
+                {
+                    name: 'managerId',
+                    type: 'list',
+                    message: 'Who is the employee\'s new manager?',
+                    choices: employeeChoices,
+                },
+            ])
+            .then((answer) => {
+                db.updateEmployeeManager(answer.employeeId, answer.managerId)
+                    .then(() => console.log('Employee\'s manager updated successfully'))
+                    .catch((err) => console.error(err));
+            });
+    });
+};
 
 // Remove Employee
 const removeEmployee = async () => {
