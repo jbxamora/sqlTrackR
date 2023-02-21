@@ -95,7 +95,7 @@ const init = () => {
         });
 };
 
-// Action function to view all employees
+// View all employees
 const viewAllEmployees = () => {
     db.findAllEmployees()
         .then(([rows]) => {
@@ -105,6 +105,7 @@ const viewAllEmployees = () => {
         })
         .then(() => init());
 };
+
 // Add Employee
 const addEmployee = () => {
     inquirer
@@ -136,6 +137,47 @@ const addEmployee = () => {
                 .then(() => init());
         });
 };
+
+// Remove Employee
+const removeEmployee = async () => {
+    const departments = await db.findAllDepartments();
+    const departmentChoices = departments.map(({ id, name }) => ({
+        name: name,
+        value: id,
+    }));
+
+    const { departmentId } = await inquirer.prompt({
+        type: 'list',
+        name: 'departmentId',
+        message: 'Select a department to view its employees:',
+        choices: departmentChoices,
+    });
+
+    const employees = await db.findAllEmployeesByDepartment(departmentId);
+    const employeeChoices = employees.map(({ id, first_name, last_name }) => ({
+        name: `${first_name} ${last_name}`,
+        value: id,
+    }));
+
+    if (employeeChoices.length === 0) {
+        console.log('No employees found in this department.');
+        return;
+    }
+
+    const { employeeId } = await inquirer.prompt({
+        type: 'list',
+        name: 'employeeId',
+        message: 'Select an employee to remove:',
+        choices: employeeChoices,
+    });
+
+    await db.removeEmployee(employeeId);
+    console.log('Employee removed successfully.');
+
+    start();
+};
+
+
 
 
 
