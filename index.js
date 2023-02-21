@@ -193,6 +193,43 @@ const addEmployee = () => {
         });
 };
 
+const updateEmployeeRole = () => {
+    db.findAllEmployees().then((employees) => {
+        const employeeChoices = employees.map((employee) => ({
+            name: `${employee.first_name} ${employee.last_name}`,
+            value: employee.id,
+        }));
+
+        inquirer
+            .prompt([
+                {
+                    name: "employeeId",
+                    type: "list",
+                    message: "Which employee's role do you want to update?",
+                    choices: employeeChoices,
+                },
+                {
+                    name: "roleId",
+                    type: "list",
+                    message: "What is the employee's new role?",
+                    choices: db.viewAllRoles().then((roles) =>
+                        roles.map((role) => ({
+                            name: role.title,
+                            value: role.id,
+                        }))
+                    ),
+                },
+            ])
+            .then((answers) => {
+                db.updateEmployeeRole(answers.employeeId, answers.roleId).then(() => {
+                    console.log("Employee's role has been updated successfully.");
+                    init();
+                });
+            });
+    });
+};
+
+
 // Remove Employee
 const removeEmployee = async () => {
     const departments = await db.findAllDepartments();
