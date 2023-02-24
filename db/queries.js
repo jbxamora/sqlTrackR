@@ -1,9 +1,12 @@
 const connection = require('../config/connection.js');
-
+const mysql = require('mysql2/promise');
 // Query to return all departments
 
 const findAllDepartments = () => {
-    return connection.promise().query("SELECT * FROM department");
+    return connection.promise().query("SELECT * FROM department")
+        .then(([rows]) => {
+            return rows;
+        });
 };
 
 // Query to add a new department 
@@ -18,9 +21,10 @@ function createDepartment(department) {
 
 function findAllRoles() {
     return connection.query(
-        'SELECT role.id, role.title, departtment.name AS department, role.salary, FROM role LEFT JOIN department ON role.department.id ORDER BY role.id'
+        'SELECT role.id, role.title, department.name AS department, role.salary FROM role LEFT JOIN department ON role.department_id = department.id ORDER BY role.id'
     );
 }
+
 
 // Query to add a new role 
 function createRole(role) {
@@ -102,29 +106,31 @@ function updateEmployeeManager(employeeId, managerId) {
 // Query to return all employees by department
 
 function findAllEmployeesByDepartment(departmentId) {
-    return connection.query(
-        `SELECT employee.id, employee.first_name, employee.last_name, role.title AS role, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
+    return connection.promise().query(
+        `SELECT employee.id, employee.first_name, employee.last_name, role.title AS role, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager 
         FROM employee 
         LEFT JOIN role ON employee.role_id = role.id 
         LEFT JOIN department ON role.department_id = department.id 
         LEFT JOIN employee manager ON employee.manager_id = manager.id 
         WHERE department.id = ?
         ORDER BY employee.id`,
-        departmentId
+        [departmentId]
     );
 }
 
+
 // Query to return all employees by manager
+
 function findAllEmployeesByManager(managerId) {
-    return connection.query(
-        `SELECT employee.id, employee.first_name, employee.last_name, role.title AS role, department.name AS department, role.salary, CONCAT(manager.first_name,'', manager.last_name) AS manager
+    return connection.promise().query(
+        `SELECT employee.id, employee.first_name, employee.last_name, role.title AS role, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager 
         FROM employee 
         LEFT JOIN role ON employee.role_id = role.id 
         LEFT JOIN department ON role.department_id = department.id 
         LEFT JOIN employee manager ON employee.manager_id = manager.id 
-        WHERE manager.id =?
+        WHERE employee.manager_id = ?
         ORDER BY employee.id`,
-        managerId
+        [managerId]
     );
 }
 

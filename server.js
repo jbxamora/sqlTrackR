@@ -142,11 +142,12 @@ const HandleviewAllEmployees = () => {
 };
 
 // Query to return all employees by manager
-const HandleviewAllEmployeesByManager = () => {
-    findAllEmployees().then((employees) => {
+const HandleviewAllEmployeesByManager = async () => {
+    try {
+        const employees = await findAllEmployees();
         const managers = employees
             .map((employee) => ({
-                name: `${employee.manager_first_name} ${employee.manager_last_name}`,
+                name: employee.manager ? employee.manager : "None",
                 value: employee.manager_id,
             }))
             .filter(
@@ -154,31 +155,34 @@ const HandleviewAllEmployeesByManager = () => {
                     self.findIndex((e) => e.value === employee.value) === index
             );
 
-        inquirer
-            .prompt({
-                name: "manager",
-                type: "list",
-                message: "Which manager's team would you like to see?",
-                choices: managers,
-            })
-            .then((answer) => {
-                const managerEmployees = employees.filter(
-                    (employee) => employee.manager_id === answer.manager
-                );
-                console.table(managerEmployees);
-                init();
-            });
-    });
+        const answer = await inquirer.prompt({
+            name: "manager",
+            type: "list",
+            message: "Which manager's team would you like to see?",
+            choices: managers,
+        });
+
+        const managerEmployees = await findAllEmployeesByManager(answer.manager);
+        console.table(managerEmployees);
+        init();
+    } catch (err) {
+        console.log(err);
+    }
 };
+
+
 
 // Query to return all employees by department
 const HandleviewAllEmployeesByDepartment = async () => {
     try {
         const departments = await findAllDepartments();
+        console.log('Departments:', departments);
+
         const departmentChoices = departments.map((department) => ({
             name: department.name,
             value: department.id,
         }));
+        // console.log('Department choices:', departmentChoices);
 
         const answer = await inquirer.prompt({
             name: "department",
@@ -186,9 +190,10 @@ const HandleviewAllEmployeesByDepartment = async () => {
             message: "Which department's employees would you like to see?",
             choices: departmentChoices,
         });
-
         const employees = await findAllEmployeesByDepartment(answer.department);
-        console.table(employees);
+        console.table(employees[0]);
+
+
     } catch (err) {
         console.log(err);
     }
@@ -199,9 +204,9 @@ const HandleviewAllEmployeesByDepartment = async () => {
 // EMPLOYEE FUNCTIONS
 
 // Add Employee
-const HandleaddEmployee = () => {
-    inquirer
-        .prompt([
+const HandleaddEmployee = async () => {
+    try {
+        const answer = await inquirer.prompt([
             {
                 name: 'first_name',
                 type: 'input',
@@ -222,12 +227,14 @@ const HandleaddEmployee = () => {
                 type: 'number',
                 message: "What is the employee's manager's ID?",
             },
-        ])
-        .then((answer) => {
-            createEmployee(answer)
-                .then(() => console.log('Employee added successfully!'))
-                .then(() => init());
-        });
+        ]);
+
+        createEmployee(answer);
+        console.log('Employee added successfully!');
+        init();
+    } catch (err) {
+        console.log(err);
+    }
 };
 
 const HandleupdateEmployeeRole = () => {
@@ -312,7 +319,7 @@ const HandleremoveEmployee = async () => {
         choices: departmentChoices,
     });
 
-    const employees = await findAllEmployeesByDepartment(departmentId);
+    const employees = findAllEmployeesByDepartment(departmentId);
     const employeeChoices = employees.map(({ id, first_name, last_name }) => ({
         name: `${first_name} ${last_name}`,
         value: id,
@@ -330,7 +337,7 @@ const HandleremoveEmployee = async () => {
         choices: employeeChoices,
     });
 
-    await removeEmployee(employeeId);
+    removeEmployee(employeeId);
     console.log('Employee removed successfully.');
 
     init();
@@ -352,9 +359,11 @@ const HandleviewAllRoles = () => {
 };
 
 // Add a role
-const HandleaddRole = () => {
-    inquirer
-        .prompt([
+const HandleaddRole = async () => {
+    try {
+        const departmentChoices = await HandleselectDepartment();
+
+        const answer = await inquirer.prompt([
             {
                 name: "title",
                 type: "input",
@@ -385,21 +394,18 @@ const HandleaddRole = () => {
                 name: "departmentId",
                 type: "list",
                 message: "What department does this role belong to?",
-                choices: selectDepartment(),
+                choices: departmentChoices,
             },
-        ])
-        .then((answer) => {
-            createRole(answer)
-                .then(() => {
-                    console.log("New role has been added.");
-                    init();
-                })
-                .catch((err) => {
-                    console.log(err);
-                    init();
-                });
-        });
+        ]);
+
+        createRole(answer);
+        console.log("New role has been added.");
+    } catch (err) {
+        console.log(err);
+    }
+    init();
 };
+;
 
 // Remove a role
 const HandleremoveRole = () => {
@@ -435,9 +441,10 @@ const HandleselectDepartment = async () => {
     }));
 };
 
+
 // Select all roles
 const HandleselectRole = async () => {
-    const roles = await findAllRoles();
+    const roles = findAllRoles();
     return roles.map((role) => ({
         name: role.title,
         value: role.id,
@@ -450,7 +457,6 @@ const HandleselectRole = async () => {
 const HandleviewAllDepartments = async () => {
     try {
         const departments = await findAllDepartments();
-        console.table(departments);
     } catch (err) {
         console.log(err);
     }
@@ -466,7 +472,7 @@ const HandleaddDepartment = async () => {
             message: 'What is the name of the department?',
         });
 
-        await createDepartment(department);
+        createDepartment(department);
         console.log(`Department ${department.department} added successfully!`);
     } catch (err) {
         console.log(err);
@@ -490,7 +496,7 @@ const HandleremoveDepartment = async () => {
             choices: departmentChoices,
         });
 
-        await deleteDepartment(departmentId);
+        deleteDepartment(departmentId);
         console.log(`Department removed successfully!`);
     } catch (err) {
         console.log(err);
