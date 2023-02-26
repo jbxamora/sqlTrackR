@@ -43,12 +43,10 @@ function findAllEmployees() {
         LEFT JOIN role ON employee.role_id = role.id 
         LEFT JOIN department ON role.department_id = department.id 
         LEFT JOIN employee manager ON employee.manager_id = manager.id 
-        ORDER BY employee.id`,
-        function(err, results, fields) {
-            console.log(results);
-        }
+        ORDER BY employee.id`
     );
 }
+
 
 // Query to add a new employee
 
@@ -105,18 +103,19 @@ function updateEmployeeManager(employeeId, managerId) {
 
 // Query to return all employees by department
 
-function findAllEmployeesByDepartment(departmentId) {
-    return connection.promise().query(
-        `SELECT employee.id, employee.first_name, employee.last_name, role.title AS role, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager 
+    function findAllEmployeesByDepartment(departmentName) {
+        return connection.promise().query(
+            `SELECT employee.id, employee.first_name, employee.last_name, role.title AS role, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager 
         FROM employee 
         LEFT JOIN role ON employee.role_id = role.id 
         LEFT JOIN department ON role.department_id = department.id 
         LEFT JOIN employee manager ON employee.manager_id = manager.id 
-        WHERE department.id = ?
+        WHERE department.name = ?
         ORDER BY employee.id`,
-        [departmentId]
-    );
-}
+            [departmentName]
+        );
+    }
+
 
 
 // Query to return all employees by manager
@@ -157,19 +156,19 @@ function viewDepartmentBudget(departmentId) {
 }
 
 module.exports = {
-    findAllEmployees, 
-    findAllDepartments, 
-    findAllEmployeesByDepartment, 
-    findAllEmployeesByManager, 
-    findAllRoles, 
-    createDepartment, 
-    createEmployee, 
-    createRole, 
-    deleteDepartment, 
-    updateEmployeeManager, 
-    updateEmployeeRole, 
-    addDepartment, 
-    addRole, 
+    findAllEmployees,
+    findAllDepartments,
+    findAllEmployeesByDepartment,
+    findAllEmployeesByManager,
+    findAllRoles,
+    createDepartment,
+    createEmployee,
+    createRole,
+    deleteDepartment,
+    updateEmployeeManager,
+    updateEmployeeRole,
+    addDepartment,
+    addRole,
     removeEmployee,
     removeRole,
     viewAllRoles,

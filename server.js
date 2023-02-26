@@ -191,7 +191,9 @@ const HandleviewAllEmployeesByDepartment = async () => {
             choices: departmentChoices,
         });
         const employees = await findAllEmployeesByDepartment(answer.department);
-        console.table(employees[0]);
+        console.log('Employees:', employees)
+        console.table(employees);
+      
 
 
     } catch (err) {
