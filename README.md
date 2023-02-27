@@ -41,6 +41,25 @@ To install and run Note Taker on your local machine, follow these steps:
 - Install the necessary dependencies with `npm install` or `npm i`
 - Start the application by typing `node app` in your terminal at the root of the folder
 
+**IF THERES NO DATA**
+
+In the terminal, use the following commands:
+- mysql -u root -p
+- Password: **`FakePassword`**
+- `CREATE DATABASE company_db`
+- `USE company_db`
+- `source path/to/schema`
+- `source path/to/seeds`
+
+**IF THERES ALREADY A DATABASE BUT NOTHING IS SHOWING**
+- mysql -u root -p
+- Password: **`FakePassword`**
+- **DROP DATABASE company_db**
+- `CREATE DATABASE company_db`
+- `USE company_db`
+- `source path/to/schema`
+- `source path/to/seeds`
+
 ![Picture of App Logo](./assets/Screenshot%202023-02-26%20at%207.58.34%20PM.png)
 
 ## Demo
