@@ -241,8 +241,120 @@ function addEmployee() {
 }
 
 // Update Employee Role
+function updateEmployeeRole() {
+    // Query employees to get a list of available employees
+    connection.query(`SELECT CONCAT(first_name, ' ', last_name) AS employee FROM employee`, function (err, res) {
+        if (err) throw err;
 
+        // Map the employee names to an array of employee choices
+        const employees = res.map((employee) => employee.employee);
 
+        // Query roles to get list of available roles
+        connection.query(`SELECT title FROM role`, function (err, res) {
+            if (err) throw err;
+
+            // Map the role titles to an array of role choices
+            const roles = res.map((role) => role.title);
+
+            // Prompt the user for new employee details
+            inquirer.prompt([
+                {
+                    name: "employee",
+                    type: "list",
+                    message: "Which employee's role would you like to update?",
+                    choices: employees,
+                },
+                {
+                    name: "role",
+                    type: "list",
+                    message: "What is the employee's new role?",
+                    choices: roles,
+                },
+            ]).then((answer) => {
+                // Insert new employee into the database
+                connection.query(
+                    `UPDATE employee
+                    SET role_id = (SELECT id FROM role WHERE title = ?)
+                    WHERE CONCAT(first_name, ' ', last_name) = ?`,
+                    [answer.role, answer.employee],
+                    function (err, res) {
+                        if (err) throw err;
+                        console.log("Employee role updated!");
+                        start();
+                    }
+                );
+            });
+        });
+    });
+}
+
+// Update Employee Manager
+    function updateEmployeeManager() {
+        // Query employees to get a list of available employees
+        connection.query(`SELECT CONCAT(first_name, ' ', last_name) AS employee FROM employee`, function (err, res) {
+            if (err) throw err;
+
+            // Map the employee names to an array of employee choices
+            const employees = res.map((employee) => employee.employee);
+
+            // Query employees to get a list of available managers
+            connection.query(`SELECT CONCAT(first_name, ' ', last_name) AS manager FROM employee`, function (err, res) {
+                if (err) throw err;
+
+                // Map the manager names to an array of manager choices
+                const managers = res.map((manager) => manager.manager);
+
+                // Prompt the user for new employee details
+                inquirer.prompt([
+                    {
+                        name: "employee",
+                        type: "list",
+                        message: "Which employee's manager would you like to update?",
+                        choices: employees,
+                    },
+                    {
+                        name: "manager",
+                        type: "list",
+                        message: "Who is the employee's new manager?",
+                        choices: managers,
+                    },
+                ]).then((answer) => {
+                    // Create a temporary table to hold the employee IDs and full names
+                    connection.query(
+                        `CREATE TEMPORARY TABLE temp_employee
+                    SELECT id, CONCAT(first_name, ' ', last_name) AS full_name
+                    FROM employee`,
+                        function (err, res) {
+                            if (err) throw err;
+                            // Update the employee's manager ID
+                            connection.query(
+                                `UPDATE employee
+                            SET manager_id = (SELECT id FROM temp_employee WHERE full_name = ?)
+                            WHERE CONCAT(first_name, ' ', last_name) = ?`,
+                                [answer.manager, answer.employee],
+                                function (err, res) {
+                                    if (err) throw err;
+                                    console.log("Employee manager updated!");
+                                    // Drop the temporary table
+                                    connection.query(
+                                        `DROP TEMPORARY TABLE temp_employee`,
+                                        function (err, res) {
+                                            if (err) throw err;
+                                            start();
+                                        }
+                                    );
+                                }
+                            );
+                        }
+                    );
+                });
+            });
+        });
+    }
+
+// Remove Employee
+function removeEmployee() {
+    
 
 
 
