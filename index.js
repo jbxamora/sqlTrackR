@@ -117,3 +117,74 @@ function viewAllEmployees() {
         }
     );
 }
+
+// View all employees by department that asks the user what department they want to view, after the user selects the department then the employees under that department show
+function viewAllEmployeesByDepartment() {
+    connection.query(`SELECT name FROM department`, function (err, res) {
+        if (err) throw err;
+
+        const departments = res.map((department) => department.name);
+
+        inquirer.prompt({
+            name: "department",
+            type: "list",
+            message: "Which department's employees would you like to see?",
+            choices: departments,
+        }).then((answer) => {
+            connection.query(
+            `SELECT department.name AS department, role.title, employee.first_name, employee.last_name, role.salary
+                FROM employee
+                LEFT JOIN role ON employee.role_id = role.id
+                LEFT JOIN department ON role.department_id = department.id
+                WHERE department.name = ?
+                ORDER BY department.id`,
+                [answer.department],
+                function (err, res) {
+                    if (err) throw err;
+                    console.table(res);
+                    start();
+                }
+            );
+        });
+    });
+}
+
+// View all employees by manager
+function viewAllEmployeesByManager() {
+    connection.query(`SELECT CONCAT(first_name, ' ', last_name) AS manager FROM employee`, function (err, res) {
+        if (err) throw err;
+
+        const managers = res.map((manager) => manager.manager);
+        console.log(managers);
+
+        inquirer.prompt({
+            name: "manager",
+            type: "list",
+            message: "Which manager's employees would you like to see?",
+            choices: managers,
+        }).then((answer) => {
+            connection.query(
+            `SELECT CONCAT(manager.first_name, ' ', manager.last_name) AS manager, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary
+                FROM employee
+                LEFT JOIN role ON employee.role_id = role.id
+                LEFT JOIN department ON role.department_id = department.id
+                LEFT JOIN employee manager ON manager.id = employee.manager_id
+                WHERE CONCAT(manager.first_name, ' ', manager.last_name) = ?
+                ORDER BY department.id`,
+                [answer.manager],
+                function (err, res) {
+                    if (err) throw err;
+                    console.table(res);
+                    start();
+                }
+            );
+        });
+    });
+}
+
+
+
+
+
+
+
