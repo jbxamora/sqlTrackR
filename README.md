@@ -45,6 +45,12 @@ To install and run Note Taker on your local machine, follow these steps:
 
 ## Demo
 
+
+
+https://user-images.githubusercontent.com/113067058/221472198-edb7c932-bfe3-40f8-bd63-81052b04d02c.mov
+
+
+
 ## Code Snippets
 
 ### Update Employee Managers
