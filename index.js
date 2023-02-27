@@ -132,7 +132,7 @@ function viewAllEmployeesByDepartment() {
             choices: departments,
         }).then((answer) => {
             connection.query(
-            `SELECT department.name AS department, role.title, employee.first_name, employee.last_name, role.salary
+                `SELECT department.name AS department, role.title, employee.first_name, employee.last_name, role.salary
                 FROM employee
                 LEFT JOIN role ON employee.role_id = role.id
                 LEFT JOIN department ON role.department_id = department.id
@@ -164,7 +164,7 @@ function viewAllEmployeesByManager() {
             choices: managers,
         }).then((answer) => {
             connection.query(
-            `SELECT CONCAT(manager.first_name, ' ', manager.last_name) AS manager, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary
+                `SELECT CONCAT(manager.first_name, ' ', manager.last_name) AS manager, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary
                 FROM employee
                 LEFT JOIN role ON employee.role_id = role.id
                 LEFT JOIN department ON role.department_id = department.id
@@ -182,6 +182,65 @@ function viewAllEmployeesByManager() {
     });
 }
 
+// Add employee
+function addEmployee() {
+    // Query roles to get list of available roles
+    connection.query(`SELECT title FROM role`, function (err, res) {
+        if (err) throw err;
+
+        // Map the role titles to an array of role choices
+        const roles = res.map((role) => role.title);
+
+        // Query employees to get a list of available managers
+        connection.query(`SELECT CONCAT(first_name, ' ', last_name) AS manager FROM employee`, function (err, res) {
+            if (err) throw err;
+
+            // Map the manager names to an array of manager choices
+            const managers = res.map((manager) => manager.manager);
+
+            // Prompt the user for new employee details
+            inquirer.prompt([
+                {
+                    name: "first_name",
+                    type: "input",
+                    message: "What is the employee's first name?",
+                },
+                {
+                    name: "last_name",
+                    type: "input",
+                    message: "What is the employee's last name?",
+                },
+                {
+                    name: "role",
+                    type: "list",
+                    message: "What is the employee's role?",
+                    choices: roles,
+                },
+                {
+                    name: "manager",
+                    type: "list",
+                    message: "Who is the employee's manager?",
+                    choices: managers,
+                },
+            ]).then((answer) => {
+                // Insert new employee into the database
+                connection.query(
+                    `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+                    VALUES (?, ?, (SELECT id FROM role WHERE title = ?), (SELECT manager.id FROM employee AS manager WHERE CONCAT(manager.first_name, ' ', manager.last_name) = ?));
+`,
+                    [answer.first_name, answer.last_name, answer.role, answer.manager],
+                    function (err, res) {
+                        if (err) throw err;
+                        console.log("Employee added!");
+                        start();
+                    }
+                );
+            });
+        });
+    });
+}
+
+// Update Employee Role
 
 
 
