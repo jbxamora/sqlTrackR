@@ -8,6 +8,7 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "colors": "^1.4.0",
     "console.table": "^0.10.0",
     "inquirer": "^8.2.4",
     "mysql": "^2.18.1",
