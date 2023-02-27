@@ -4,7 +4,6 @@ const inquirer = require('inquirer');
 require("console.table");
 var colors = require('colors/safe');
 
-
 // Create the connection to database
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -466,6 +465,72 @@ function removeRole() {
                 function (err, res) {
                     if (err) throw err;
                     console.log(colors.brightGreen("Role deleted!"));
+                    start();
+                }
+            );
+        });
+    });
+}
+
+// View All Departments
+function viewAllDepartments() {
+    // Query all departments
+    connection.query(`SELECT * FROM department`, function (err, res) {
+        if (err) throw err;
+        // Log all results of the SELECT statement
+        console.table(res);
+        start();
+    });
+}
+
+// Add Department
+function addDepartment() {
+    // Prompt the user for new department details
+    inquirer.prompt([
+        {
+            name: "name",
+            type: "input",
+            message: "What is the department's name?",
+        },
+    ]).then((answer) => {
+        // Insert new department into the database
+        connection.query(
+            `INSERT INTO department (name) VALUES (?)`,
+            [answer.name],
+            function (err, res) {
+                if (err) throw err;
+                console.log(colors.brightGreen("Department added!"));
+                start();
+            }
+        );
+    });
+}
+
+// Remove Department
+function removeDepartment() {
+    // Query departments to get a list of available departments
+    connection.query(`SELECT name FROM department`, function (err, res) {
+        if (err) throw err;
+
+        // Map the department names to an array of department choices
+        const departments = res.map((department) => department.name);
+
+        // Prompt the user for the department to delete
+        inquirer.prompt([
+            {
+                name: "department",
+                type: "list",
+                message: "Which department would you like to delete?",
+                choices: departments,
+            },
+        ]).then((answer) => {
+            // Delete the department from the database
+            connection.query(
+                `DELETE FROM department WHERE name = ?`,
+                [answer.department],
+                function (err, res) {
+                    if (err) throw err;
+                    console.log(colors.brightGreen("Department deleted!"));
                     start();
                 }
             );
