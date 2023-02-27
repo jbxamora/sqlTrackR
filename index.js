@@ -354,7 +354,48 @@ function updateEmployeeRole() {
 
 // Remove Employee
 function removeEmployee() {
-    
+    // Query employees to get a list of available employees
+    connection.query(`SELECT CONCAT(first_name, ' ', last_name) AS employee FROM employee`, function (err, res) {
+        if (err) throw err;
+
+        // Map the employee names to an array of employee choices
+        const employees = res.map((employee) => employee.employee);
+
+        // Prompt the user for the employee to delete
+        inquirer.prompt([
+            {
+                name: "employee",
+                type: "list",
+                message: "Which employee would you like to delete?",
+                choices: employees,
+            },
+        ]).then((answer) => {
+            // Delete the employee from the database
+            connection.query(
+                `DELETE FROM employee WHERE CONCAT(first_name, ' ', last_name) = ?`,
+                [answer.employee],
+                function (err, res) {
+                    if (err) throw err;
+                    console.log("Employee deleted!");
+                    start();
+                }
+            );
+        });
+    });
+}
+
+// View All Roles
+function viewAllRoles() {
+    // Query all roles
+    connection.query(`SELECT * FROM role`, function (err, res) {
+        if (err) throw err;
+        // Log all results of the SELECT statement
+        console.table(res);
+        start();
+    });
+}
+
+
 
 
 
