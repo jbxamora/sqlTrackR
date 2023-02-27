@@ -38,10 +38,12 @@ THEN I am prompted to select an employee to update and their new role and this i
 To install and run Note Taker on your local machine, follow these steps:
 
 - Clone this repository to your local machine
-- Install the necessary dependencies with npm install
-- Start the server by typing `node app` in your terminal at the root of the folder
+- Install the necessary dependencies with `npm install` or `npm i`
+- Start the application by typing `node app` in your terminal at the root of the folder
 
-![Picture of Deployed App](./assets/Screenshot%202023-02-26%20at%207.27.27%20PM.png)
+![Picture of App Logo](./assets/Screenshot%202023-02-26%20at%207.58.34%20PM.png)
+
+## Demo
 
 ## Code Snippets
 
