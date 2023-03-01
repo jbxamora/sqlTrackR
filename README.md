@@ -35,7 +35,7 @@ THEN I am prompted to select an employee to update and their new role and this i
 
 ## Installation
 
-To install and run Note Taker on your local machine, follow these steps:
+To install and run on your local machine, follow these steps:
 
 - Clone this repository to your local machine
 - Install the necessary dependencies with `npm install` or `npm i`
